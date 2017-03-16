@@ -100,7 +100,7 @@ max(avgPerInterval)
 ## Imputing missing values
 
 We repeat our missing values calculation from the first section of the report.
-Then, we replace the missing step values with the average interval weight for that day:
+Then, we replace the missing step values with the average interval weight:
 
 
 ```r
@@ -115,12 +115,12 @@ sapply(activity, function(x) {sum(is.na(x))})
 ```r
 # fill in missing values with the date sums computed before
 naLogical <- is.na(activity$steps)
-uniqueDate <- unique(activity$date)
-dateNames <- activity$date[naLogical]
-dateIndices <- match(dateNames, uniqueDate)
+uniqueInterval <- unique(activity$interval)
+intervalNames <- activity$interval[naLogical]
+intervalIndices <- match(intervalNames, uniqueInterval)
 newActivity <- activity
 # replace NA value with the average steps per interval on that day
-newActivity$steps[naLogical] <- avgPerInterval[dateIndices] / length(unique(activity$date))
+newActivity$steps[naLogical] <- avgPerInterval[intervalIndices]
 sapply(newActivity, function(x) {sum(is.na(x))})
 ```
 
@@ -129,17 +129,24 @@ sapply(newActivity, function(x) {sum(is.na(x))})
 ##        0        0        0
 ```
 
+
+```r
+newStepsEachDay <- tapply(newActivity$steps, newActivity$date, sum)
+qplot(steps, data = data.frame(steps = newStepsEachDay), geom = "histogram", binwidth = 500)
+```
+
+![](PA1_template_files/figure-html/newhist-1.png)<!-- -->
+
 Now, to observe some of the changes made by imputing values, we report the new
 mean and median total number of steps taken per day:
 
 
 ```r
-newStepsEachDay <- tapply(newActivity$steps, newActivity$date, sum)
 mean(newStepsEachDay)
 ```
 
 ```
-## [1] 9354.621
+## [1] 10766.19
 ```
 
 ```r
@@ -147,7 +154,7 @@ median(newStepsEachDay)
 ```
 
 ```
-## [1] 10395
+## [1] 10766.19
 ```
 
 ```r
@@ -155,7 +162,7 @@ mean(stepsEachDay) - mean(newStepsEachDay)
 ```
 
 ```
-## [1] 1411.568
+## [1] 0
 ```
 
 ```r
@@ -163,11 +170,10 @@ median(stepsEachDay) - median(newStepsEachDay)
 ```
 
 ```
-## [1] 370
+## [1] -1.188679
 ```
 
-As we have observed, the median has been lowered slightly, while the mean has
-been lowered signficantly (about 10 percent).
+As we have observed, the mean and median are almost unchanged.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
